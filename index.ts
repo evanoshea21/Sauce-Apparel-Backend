@@ -6,6 +6,7 @@ const morgan = require("morgan"); //logs incoming requests + status
 const bodyParser = require("body-parser"); //parses json
 const cors = require("cors"); // sets CORS headers
 
+import getProducts from "./GetProducts";
 //UTILS imported (functions to charge credit card)
 const createProfile = require("./CreateProfile");
 const getProfile = require("./GetProfile");
@@ -62,6 +63,17 @@ app.get("/test", (req: any, res: any) => {
   res.send("pong [server test]");
 });
 
+app.post("/products", (req: any, res: any) => {
+  // get products for build customer profile
+  getProducts(req.body)
+    .then((response: any) => {
+      res.send(response);
+    })
+    .catch((e: any) => {
+      console.error("Error fetching products..");
+      res.status(500).send(e);
+    });
+});
 app.post("/createprofile", (req: any, res: any) => {
   // create customer profile
   createProfile(req.body, function (response: any) {

@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/db1"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
+}
+
+model CustomerProfile {
+  customerProfileId String   @unique
+  userId            String   @id @unique
+  email             String
+  firstName         String
+  lastName          String
+  phone             String
+  User              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Orders            Orders[]
+
+  @@index([userId])
+}
+
+model Flavors_Inventory {
+  flavor    String
+  productId String
+  sku       String   @id
+  inventory Int
+  Products  Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, flavor])
+  @@index([productId])
+}
+
+model Orders {
+  refTransId      String           @id @unique
+  cardNum         String
+  expDate         String
+  userId          String
+  createdAt       DateTime         @default(now())
+  status          String           @default("unfulfilled")
+  amountCharged   String
+  subtotal        String
+  CustomerProfile CustomerProfile  @relation(fields: [userId], references: [userId])
+  PurchasedItems  PurchasedItems[]
+
+  @@index([userId], map: "Orders_userId_fkey")
+}
+
+model Products {
+  id                String              @id
+  name              String              @unique
+  unitPrice         String
+  imageUrl          String              @db.VarChar(500)
+  description       String?
+  salesPrice        String?
+  category          String?
+  isFeatured        Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  Flavors_Inventory Flavors_Inventory[]
+
+  @@index([id])
+}
+
+model PurchasedItems {
+  id          String @id
+  sku         String
+  name        String
+  quantity    String
+  unitPrice   String
+  img         String
+  description String
+  refTransId  String
+  Orders      Orders @relation(fields: [refTransId], references: [refTransId], onDelete: Cascade)
+
+  @@index([refTransId], map: "PurchasedItems_refTransId_fkey")
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
+}
+
+model User {
+  id              String           @id
+  name            String?
+  email           String?          @unique
+  emailVerified   DateTime?
+  image           String?
+  Account         Account[]
+  CustomerProfile CustomerProfile?
+  Session         Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
