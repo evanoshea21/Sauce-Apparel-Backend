@@ -41,14 +41,14 @@ model CustomerProfile {
   @@index([userId])
 }
 
-model Flavors_Inventory {
-  flavor    String
+model Sizes_Inventory {
+  size      String
   productId String
   sku       String   @id
   inventory Int
   Products  Products @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([productId, flavor])
+  @@unique([productId, size])
   @@index([productId])
 }
 
@@ -68,16 +68,16 @@ model Orders {
 }
 
 model Products {
-  id                String              @id
-  name              String              @unique
-  unitPrice         String
-  imageUrl          String              @db.VarChar(500)
-  description       String?
-  salesPrice        String?
-  category          String?
-  isFeatured        Boolean             @default(false)
-  createdAt         DateTime            @default(now())
-  Flavors_Inventory Flavors_Inventory[]
+  id              String            @id
+  name            String            @unique
+  unitPrice       String
+  imageUrl        String            @db.VarChar(500)
+  description     String?
+  salesPrice      String?
+  category        String?
+  isFeatured      Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  Sizes_Inventory Sizes_Inventory[]
 
   @@index([id])
 }

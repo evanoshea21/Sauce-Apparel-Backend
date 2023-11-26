@@ -37,15 +37,15 @@ export default async function getProducts(body: ReadProduct) {
           isFeatured: reqBody.isFeatured,
         },
         include: {
-          Flavors_Inventory: true,
+          Sizes_Inventory: true,
         },
       });
       if (reqBody.excludeOutOfStock) {
-        // loop through and filter out those with empty flavors
+        // loop through and filter out those with empty Sizes
         const filteredResponse = productResponse.filter((product: any) => {
           return (
-            product.Flavors_Inventory != undefined &&
-            product.Flavors_Inventory.length != 0
+            product.Sizes_Inventory != undefined &&
+            product.Sizes_Inventory.length != 0
           );
         });
         return filteredResponse;
